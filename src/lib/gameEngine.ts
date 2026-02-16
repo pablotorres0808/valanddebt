@@ -25,14 +25,14 @@ export interface EntityDef {
 }
 
 const ENTITY_DEFS: EntityDef[] = [
-  // GOOD ASSETS
-  { kind: 'studio_apt', type: 'asset', label: 'Studio Apt', points: 100, speed: 2.8, size: 38, spawnWeight: 40, color: '#39FF14', flash: false },
-  { kind: 'family_home', type: 'asset', label: 'Family Home', points: 500, speed: 2.0, size: 48, spawnWeight: 25, color: '#39FF14', flash: false },
-  { kind: 'commercial_plaza', type: 'asset', label: 'Comm. Plaza', points: 1500, speed: 1.4, size: 62, spawnWeight: 5, color: '#39FF14', flash: false },
-  // BAD LIABILITIES
-  { kind: 'maintenance', type: 'liability', label: 'Maintenance', points: -200, speed: 2.2, size: 42, spawnWeight: 30, color: '#FF00FF', flash: false },
-  { kind: 'interest_hike', type: 'liability', label: 'Interest Hike', points: -500, speed: 3.2, size: 44, spawnWeight: 15, color: '#FF00FF', flash: false },
-  { kind: 'market_crash', type: 'liability', label: 'Market Crash', points: -3000, speed: 1.6, size: 72, spawnWeight: 3, color: '#FF00FF', flash: true },
+  // GOOD ASSETS - Neon Green
+  { kind: 'studio_apt', type: 'asset', label: 'studioApt', points: 100, speed: 2.8, size: 38, spawnWeight: 40, color: '#39FF14', flash: false },
+  { kind: 'family_home', type: 'asset', label: 'familyHome', points: 500, speed: 2.0, size: 48, spawnWeight: 25, color: '#39FF14', flash: false },
+  { kind: 'commercial_plaza', type: 'asset', label: 'commPlaza', points: 1500, speed: 1.4, size: 62, spawnWeight: 5, color: '#39FF14', flash: false },
+  // BAD LIABILITIES - Keep theme pink/red
+  { kind: 'maintenance', type: 'liability', label: 'maintenance', points: -200, speed: 2.2, size: 42, spawnWeight: 30, color: '#FF00FF', flash: false },
+  { kind: 'interest_hike', type: 'liability', label: 'interestHike', points: -500, speed: 3.2, size: 44, spawnWeight: 15, color: '#FF00FF', flash: false },
+  { kind: 'market_crash', type: 'liability', label: 'marketCrashLabel', points: -3000, speed: 1.6, size: 72, spawnWeight: 3, color: '#FF00FF', flash: true },
 ];
 
 // === TYPES ===
@@ -48,6 +48,7 @@ export interface GameObject {
   speed: number;
   rotation: number;
   flash: boolean;
+  color: string;
 }
 
 export interface Particle {
@@ -162,18 +163,24 @@ function pickEntityDef(score: number): EntityDef {
 
 // === SPAWNING ===
 let spawnTimer = 0;
+let nextSpawnInterval = 60; // Initial calm start
 
 export function resetSpawnTimer() {
   spawnTimer = 0;
+  nextSpawnInterval = 60;
 }
 
 function spawnObject(state: GameState, canvasWidth: number): GameObject | null {
-  const baseInterval = 55;
-  const interval = Math.max(15, baseInterval - state.difficulty * 3);
   spawnTimer++;
 
-  if (spawnTimer < interval) return null;
+  if (spawnTimer < nextSpawnInterval) return null;
   spawnTimer = 0;
+
+  // Calculate next interval with randomness
+  // Difficulty reduces base interval, but we add a random factor
+  const baseInterval = Math.max(20, 70 - state.difficulty * 4);
+  const randomness = Math.random() * 30; // 0 to 30 frames of randomness
+  nextSpawnInterval = baseInterval + randomness;
 
   const def = pickEntityDef(state.score);
   const margin = def.size;
@@ -191,6 +198,7 @@ function spawnObject(state: GameState, canvasWidth: number): GameObject | null {
     speed: def.speed * state.speedMultiplier,
     rotation: 0,
     flash: def.flash,
+    color: def.color,
   };
 }
 
@@ -295,7 +303,7 @@ function drawFallingObject(ctx: CanvasRenderingContext2D, obj: GameObject, frame
   }
 
   if (obj.type === 'asset') {
-    ctx.fillStyle = COLORS.turboLime;
+    ctx.fillStyle = obj.color;
     ctx.strokeStyle = COLORS.deepByte;
     ctx.lineWidth = 3;
 
@@ -334,7 +342,7 @@ function drawFallingObject(ctx: CanvasRenderingContext2D, obj: GameObject, frame
     }
   } else {
     // Liability — spiky danger shape
-    ctx.fillStyle = COLORS.glitchPink;
+    ctx.fillStyle = obj.color;
     ctx.strokeStyle = COLORS.deepByte;
     ctx.lineWidth = 3;
 

@@ -19,6 +19,9 @@ const GameCanvas = () => {
   const animFrameRef = useRef<number>(0);
   const containerRef = useRef<HTMLDivElement>(null);
 
+  // Keyboard state tracking
+  const keysPressed = useRef<{ [key: string]: boolean }>({});
+
   const [uiState, setUiState] = useState<{
     status: GameState['gameStatus'];
     score: number;
@@ -39,22 +42,15 @@ const GameCanvas = () => {
     combo: 0,
   });
 
-  // === CANVAS SIZING (16:9, fills viewport) ===
+  // === CANVAS SIZING (Full Screen filling) ===
   const resizeCanvas = useCallback(() => {
     const canvas = canvasRef.current;
     const container = containerRef.current;
     if (!canvas || !container) return;
 
-    const cw = container.clientWidth;
-    const ch = container.clientHeight;
-    const ratio = 16 / 9;
-    let w = cw;
-    let h = cw / ratio;
-
-    if (h > ch) {
-      h = ch;
-      w = ch * ratio;
-    }
+    // Fill the entire viewport
+    const w = window.innerWidth;
+    const h = window.innerHeight;
 
     canvas.width = w;
     canvas.height = h;
@@ -62,13 +58,34 @@ const GameCanvas = () => {
     canvas.style.height = `${h}px`;
   }, []);
 
-  // === INPUT ===
-  const handlePointerMove = useCallback((e: React.PointerEvent) => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const rect = canvas.getBoundingClientRect();
-    const x = (e.clientX - rect.left) / rect.width;
-    gameStateRef.current.playerX = Math.max(0.05, Math.min(0.95, x));
+  // === KEYBOARD INPUT ===
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      keysPressed.current[e.key.toLowerCase()] = true;
+    };
+    const handleKeyUp = (e: KeyboardEvent) => {
+      keysPressed.current[e.key.toLowerCase()] = false;
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('keyup', handleKeyUp);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('keyup', handleKeyUp);
+    };
+  }, []);
+
+  const processMovement = useCallback(() => {
+    const keys = keysPressed.current;
+    const speed = 0.008; // Decreased for better control
+    let move = 0;
+
+    if (keys['a'] || keys['arrowleft']) move -= 1;
+    if (keys['d'] || keys['arrowright']) move += 1;
+
+    if (move !== 0) {
+      gameStateRef.current.playerX = Math.max(0.05, Math.min(0.95, gameStateRef.current.playerX + move * speed));
+    }
   }, []);
 
   // === GAME LOOP ===
@@ -78,6 +95,7 @@ const GameCanvas = () => {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
+    processMovement();
     gameStateRef.current = update(gameStateRef.current, canvas.width, canvas.height);
     render(ctx, gameStateRef.current, canvas.width, canvas.height, t);
 
@@ -106,7 +124,7 @@ const GameCanvas = () => {
     });
 
     animFrameRef.current = requestAnimationFrame(gameLoop);
-  }, [t]);
+  }, [t, processMovement]);
 
   // === START / RESTART ===
   const startGame = useCallback(() => {
@@ -135,14 +153,13 @@ const GameCanvas = () => {
   return (
     <div
       ref={containerRef}
-      className="fixed inset-0 flex items-center justify-center bg-foreground overflow-hidden"
+      className="fixed inset-0 bg-foreground overflow-hidden"
     >
       <SettingsButton />
-      <div className="relative">
+      <div className="relative w-full h-full">
         <canvas
           ref={canvasRef}
-          onPointerMove={handlePointerMove}
-          className="block cursor-none"
+          className="block"
           style={{ touchAction: 'none' }}
         />
 
