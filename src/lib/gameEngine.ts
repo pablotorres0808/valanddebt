@@ -2,6 +2,7 @@
  * Val&debt Game Engine v2
  * Strategic Portfolio Simulation with entity variety, combos, and floating text.
  */
+import { playSound } from './audio';
 
 // === ENTITY DEFINITIONS ===
 export type EntityKind =
@@ -537,7 +538,10 @@ export function update(state: GameState, canvasWidth: number, canvasHeight: numb
           isBullMarket = true;
           comboTimer = BULL_MARKET_DURATION;
         }
+
+        playSound('coin');
       } else {
+        playSound('explosion');
         // Market crash = insta-death
         if (updated.kind === 'market_crash') {
           isInstaDeath = true;
@@ -584,8 +588,7 @@ export function update(state: GameState, canvasWidth: number, canvasHeight: numb
     .map(p => ({ ...p, x: p.x + p.vx, y: p.y + p.vy, vy: p.vy + 0.1, life: p.life - 1 }))
     .filter(p => p.life > 0);
 
-  // Game over
-  if (ns.lives <= 0) {
+  if (ns.lives <= 0 && state.gameStatus === 'playing') {
     ns.gameStatus = 'gameover';
     if (ns.score > ns.highScore) {
       ns.highScore = ns.score;

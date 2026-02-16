@@ -73,6 +73,8 @@ export const translations: Translations = {
   maintenance: { en: 'Maintenance', es: 'Mantenimiento' },
   interestHike: { en: 'Interest Hike', es: 'Subida Tasas' },
   marketCrashLabel: { en: 'Market Crash', es: 'Colapso' },
+  mute: { en: 'Mute', es: 'Silenciar' },
+  unmute: { en: 'Unmute', es: 'Activar Sonido' },
 };
 
 interface LanguageContextType {

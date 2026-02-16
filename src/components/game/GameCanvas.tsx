@@ -11,6 +11,7 @@ import StartScreen from './StartScreen';
 import GameHUD from './GameHUD';
 import GameOverScreen from './GameOverScreen';
 import SettingsButton from './SettingsButton';
+import { playSound, stopSound } from '@/lib/audio';
 
 const GameCanvas = () => {
   const { t } = useLanguage();
@@ -88,6 +89,15 @@ const GameCanvas = () => {
     }
   }, []);
 
+  // === AUDIO LIFECYCLE ===
+  useEffect(() => {
+    if (uiState.status === 'playing') {
+      playSound('engine');
+    } else {
+      stopSound('engine');
+    }
+  }, [uiState.status]);
+
   // === GAME LOOP ===
   const gameLoop = useCallback(() => {
     const canvas = canvasRef.current;
@@ -97,6 +107,9 @@ const GameCanvas = () => {
 
     processMovement();
     gameStateRef.current = update(gameStateRef.current, canvas.width, canvas.height);
+    if (gameStateRef.current.gameStatus === 'playing') {
+      playSound('engine');
+    }
     render(ctx, gameStateRef.current, canvas.width, canvas.height, t);
 
     const gs = gameStateRef.current;
@@ -128,6 +141,8 @@ const GameCanvas = () => {
 
   // === START / RESTART ===
   const startGame = useCallback(() => {
+    // Unlock and start engine hum on first interaction
+    playSound('engine');
     const hs = gameStateRef.current.highScore;
     gameStateRef.current = createInitialState();
     gameStateRef.current.highScore = hs;
@@ -139,7 +154,7 @@ const GameCanvas = () => {
     startGame();
   }, [startGame]);
 
-  // === LIFECYCLE ===
+  // === LIFECYCLE (Canvas & Game Loop) ===
   useEffect(() => {
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
@@ -147,6 +162,7 @@ const GameCanvas = () => {
     return () => {
       window.removeEventListener('resize', resizeCanvas);
       cancelAnimationFrame(animFrameRef.current);
+      stopSound('engine'); // Cleanup
     };
   }, [resizeCanvas, gameLoop]);
 

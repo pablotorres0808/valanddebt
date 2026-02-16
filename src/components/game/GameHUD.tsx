@@ -38,13 +38,13 @@ const GameHUD = ({ score, lives, maxLives, difficulty, isBullMarket, combo }: Ga
             }}
           />
         </div>
-        <div className="font-tech text-[9px] text-muted-foreground uppercase tracking-wider">
+        <div className="font-tech text-[9px] text-white uppercase tracking-wider">
           {t('portfolioHealth')}
         </div>
       </div>
 
-      {/* Score & Combo */}
-      <div className="arcade-border bg-foreground/80 px-6 py-2 text-right space-y-1">
+      {/* Score & Combo - Offset for Settings Button */}
+      <div className="arcade-border bg-foreground/80 px-6 py-2 text-right space-y-1 mr-16">
         <div className="font-display text-3xl md:text-4xl text-turbo-lime neon-green">
           ${score.toLocaleString()}
         </div>

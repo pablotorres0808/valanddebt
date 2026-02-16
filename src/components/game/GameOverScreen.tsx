@@ -1,5 +1,7 @@
+import { useEffect } from 'react';
 import { TrendingDown, RotateCcw } from 'lucide-react';
 import { useLanguage } from '@/lib/LanguageContext';
+import { playSound } from '@/lib/audio';
 
 interface GameOverScreenProps {
   score: number;
@@ -10,6 +12,11 @@ interface GameOverScreenProps {
 const GameOverScreen = ({ score, highScore, onRetry }: GameOverScreenProps) => {
   const { t } = useLanguage();
   const isNewHighScore = score >= highScore && score > 0;
+
+  useEffect(() => {
+    // Force play the crash sound when the market collapses
+    playSound('crash');
+  }, []);
 
   return (
     <div className="absolute inset-0 flex flex-col items-center justify-center z-10 bg-foreground/70">
