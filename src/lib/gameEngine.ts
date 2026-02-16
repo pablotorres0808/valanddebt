@@ -14,6 +14,7 @@ export type EntityKind =
   | 'studio_apt'
   | 'family_home'
   | 'commercial_plaza'
+  | 'stocks'
   | 'maintenance'
   | 'interest_hike'
   | 'market_crash';
@@ -31,14 +32,15 @@ export interface EntityDef {
 }
 
 const ENTITY_DEFS: EntityDef[] = [
-  // GOOD ASSETS - Neon Green
-  { kind: 'studio_apt', type: 'asset', label: 'studioApt', points: 100, speed: 2.8, size: 38, spawnWeight: 40, color: '#39FF14', flash: false },
-  { kind: 'family_home', type: 'asset', label: 'familyHome', points: 500, speed: 2.0, size: 48, spawnWeight: 25, color: '#39FF14', flash: false },
-  { kind: 'commercial_plaza', type: 'asset', label: 'commPlaza', points: 1500, speed: 1.4, size: 62, spawnWeight: 5, color: '#39FF14', flash: false },
-  // BAD LIABILITIES - Keep theme pink/red
-  { kind: 'maintenance', type: 'liability', label: 'maintenance', points: -200, speed: 2.2, size: 42, spawnWeight: 30, color: '#FF00FF', flash: false },
-  { kind: 'interest_hike', type: 'liability', label: 'interestHike', points: -500, speed: 3.2, size: 44, spawnWeight: 15, color: '#FF00FF', flash: false },
-  { kind: 'market_crash', type: 'liability', label: 'marketCrashLabel', points: -3000, speed: 1.6, size: 72, spawnWeight: 3, color: '#FF00FF', flash: true },
+  // GOOD ASSETS - Professional Palette
+  { kind: 'education', type: 'asset', label: 'educationLabel', points: 150, speed: 2.8, size: 40, spawnWeight: 35, color: '#3498db', flash: false },
+  { kind: 'family_home', type: 'asset', label: 'familyHome', points: 600, speed: 2.2, size: 52, spawnWeight: 20, color: '#e67e22', flash: false },
+  { kind: 'commercial_plaza', type: 'asset', label: 'commPlaza', points: 2000, speed: 1.6, size: 68, spawnWeight: 5, color: '#2ecc71', flash: false },
+  { kind: 'stocks', type: 'asset', label: 'stocksLabel', points: 1000, speed: 2.5, size: 44, spawnWeight: 15, color: '#f1c40f', flash: false },
+  // BAD LIABILITIES - High Contrast Danger
+  { kind: 'maintenance', type: 'liability', label: 'maintenance', points: -250, speed: 2.4, size: 42, spawnWeight: 30, color: '#e74c3c', flash: false },
+  { kind: 'interest_hike', type: 'liability', label: 'interestHike', points: -750, speed: 3.4, size: 44, spawnWeight: 15, color: '#c0392b', flash: false },
+  { kind: 'market_crash', type: 'liability', label: 'marketCrashLabel', points: -5000, speed: 1.8, size: 75, spawnWeight: 3, color: '#8e44ad', flash: true },
 ];
 
 // === TYPES ===
@@ -99,6 +101,17 @@ export interface GameState {
   // Milestone tracking
   nextMilestone: number;
   speedMultiplier: number;
+  totalGains: number;
+  totalLosses: number;
+  // Asset counters for breakdown
+  educationCount: number;
+  homeCount: number;
+  plazaCount: number;
+  stockCount: number;
+  // Liability counters for breakdown
+  maintenanceCount: number;
+  interestCount: number;
+  crashCount: number;
 }
 
 // === CONSTANTS ===
@@ -143,6 +156,15 @@ export function createInitialState(): GameState {
     isBullMarket: false,
     nextMilestone: MILESTONE_STEP,
     speedMultiplier: 1.0,
+    totalGains: 0,
+    totalLosses: 0,
+    educationCount: 0,
+    homeCount: 0,
+    plazaCount: 0,
+    stockCount: 0,
+    maintenanceCount: 0,
+    interestCount: 0,
+    crashCount: 0,
   };
 }
 
@@ -392,41 +414,139 @@ function drawFallingObject(ctx: CanvasRenderingContext2D, obj: GameObject, frame
     const hw = w / 2;
     const hh = h / 2;
 
-    // 1. Base Structure
+    // 1. Base Structure & Color Coordination
     ctx.beginPath();
-    if (obj.kind === 'studio_apt') {
-      ctx.roundRect(-hw + 4, -hh + 10, w - 8, h - 14, 2);
-    } else if (obj.kind === 'family_home') {
-      ctx.moveTo(-hw, hh);
-      ctx.lineTo(-hw, 0);
+    if (obj.kind === 'education') {
+      // Graduation Cap (Black/Gold)
+      ctx.fillStyle = '#1a1a1a';
+      // Mortarboard square
+      ctx.beginPath();
+      ctx.moveTo(-hw, -hh + 5);
       ctx.lineTo(0, -hh);
-      ctx.lineTo(hw, 0);
+      ctx.lineTo(hw, -hh + 5);
+      ctx.lineTo(0, -hh + 10);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+
+      // Tassel
+      ctx.strokeStyle = '#f1c40f'; // Gold
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(hw - 2, -hh + 5);
+      ctx.lineTo(hw + 4, hh - 10);
+      ctx.stroke();
+
+      // Bottom flat part
+      ctx.fillStyle = '#1a1a1a';
+      ctx.roundRect(-hw + 8, -hh + 8, w - 16, h - 8, 2);
+      ctx.fill();
+      ctx.stroke();
+
+      // Degree Scroll
+      ctx.fillStyle = '#ffffff';
+      ctx.roundRect(-hw + 12, hh - 12, w - 24, 6, 1);
+      ctx.fill();
+      ctx.stroke();
+    } else if (obj.kind === 'family_home') {
+      // Warm Family Home (Orange)
+      ctx.fillStyle = '#e67e22';
+      ctx.moveTo(-hw, hh);
+      ctx.lineTo(-hw, -2);
+      ctx.lineTo(0, -hh);
+      ctx.lineTo(hw, -2);
       ctx.lineTo(hw, hh);
       ctx.closePath();
-    } else { // Commercial Plaza
-      ctx.roundRect(-hw, -hh + 5, w, h - 5, 0);
+    } else if (obj.kind === 'commercial_plaza') {
+      // Corporate Plaza (Green)
+      ctx.fillStyle = '#2ecc71';
+      ctx.roundRect(-hw, -hh + 5, w, h - 5, 2);
+    } else if (obj.kind === 'stocks') {
+      // Stock Certificate (Paper/Gold)
+      ctx.fillStyle = '#f5f5dc'; // Beige paper
+      ctx.roundRect(-hw + 5, -hh + 5, w - 10, h - 10, 2);
     }
     ctx.fill();
     ctx.stroke();
 
-    // 2. Windows & Details (White/Glass)
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+    // 2. Specific Details per Asset
+    ctx.strokeStyle = '#000000';
+    ctx.lineWidth = 1;
+
     if (obj.kind === 'studio_apt') {
-      for (let y = -hh + 15; y < hh - 5; y += 8) {
-        ctx.fillRect(-hw + 8, y, 6, 4);
-        ctx.fillRect(hw - 14, y, 6, 4);
+      // Dual window columns
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+      for (let y = -hh + 14; y < hh - 4; y += 8) {
+        ctx.fillRect(-hw + 10, y, 6, 5);
+        ctx.fillRect(hw - 16, y, 6, 5);
       }
     } else if (obj.kind === 'family_home') {
-      ctx.fillRect(-hw + 8, hh - 12, 6, 6); // Window 1
-      ctx.fillRect(hw - 14, hh - 12, 6, 6); // Window 2
-      ctx.fillStyle = '#000';
-      ctx.fillRect(-2, hh - 10, 4, 10);      // Door
-    } else { // Commercial
-      for (let i = 0; i < 4; i++) {
-        for (let j = 0; j < 6; j++) {
-          ctx.fillRect(-hw + 5 + i * (w / 4), -hh + 10 + j * 8, w / 4 - 10, 4);
+      // Roof detail & Windows
+      ctx.fillStyle = '#a04000'; // Darker orange roof
+      ctx.beginPath();
+      ctx.moveTo(-hw - 2, -2);
+      ctx.lineTo(0, -hh - 2);
+      ctx.lineTo(hw + 2, -2);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+      ctx.fillRect(-hw + 10, 4, 8, 8);
+      ctx.fillRect(hw - 18, 4, 8, 8);
+      ctx.fillStyle = '#3e2723';
+      ctx.fillRect(-3, hh - 12, 6, 12); // Door
+    } else if (obj.kind === 'commercial_plaza') {
+      // Glass panes & Logo
+      const windowPulse = (Math.sin(Date.now() / 400) + 1) / 2;
+      ctx.fillStyle = `rgba(200, 255, 255, ${0.3 + windowPulse * 0.3})`;
+      for (let i = 0; i < 3; i++) {
+        for (let j = 0; j < 5; j++) {
+          ctx.fillRect(-hw + 8 + i * (w / 3), -hh + 12 + j * 9, w / 3 - 16, 6);
         }
       }
+      ctx.fillStyle = '#27ae60';
+      ctx.font = 'bold 10px "Space Mono", monospace';
+      ctx.fillText('V&D', -hw + 5, -hh + 15);
+
+      // Upward Growth Ticker
+      ctx.strokeStyle = '#2ecc71';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(hw - 10, hh - 10);
+      ctx.lineTo(hw - 5, hh - 15);
+      ctx.lineTo(hw - 15, hh - 15);
+      ctx.stroke();
+    } else if (obj.kind === 'stocks') {
+      // Certificate lines & Seal
+      ctx.strokeStyle = 'rgba(44, 62, 80, 0.4)';
+      ctx.beginPath();
+      for (let i = -10; i <= 10; i += 5) {
+        ctx.moveTo(-hw + 10, i);
+        ctx.lineTo(hw - 10, i);
+      }
+      ctx.stroke();
+
+      // Stock Chart line - Vibrant Green
+      ctx.strokeStyle = '#2ecc71';
+      ctx.lineWidth = 2;
+      ctx.shadowBlur = 4;
+      ctx.shadowColor = '#2ecc71';
+      ctx.beginPath();
+      ctx.moveTo(-hw + 12, 12);
+      ctx.lineTo(-hw + 25, 2);
+      ctx.lineTo(0, 8);
+      ctx.lineTo(hw - 12, -12);
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+
+      // Wax Seal - Embossed
+      ctx.fillStyle = '#c0392b';
+      ctx.beginPath();
+      ctx.arc(hw - 14, hh - 14, 7, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = '#922b21';
+      ctx.lineWidth = 1;
+      ctx.stroke();
     }
 
   } else {
@@ -620,6 +740,8 @@ export function update(state: GameState, canvasWidth: number, canvasHeight: numb
   const surviving: GameObject[] = [];
   let scoreChange = 0;
   let livesChange = 0;
+  let sessionGains = 0;
+  let sessionLosses = 0;
   const newParticles: Particle[] = [...state.particles];
   const newFloats: FloatingText[] = [...state.floatingTexts];
   let flash = state.flashAlpha;
@@ -644,13 +766,21 @@ export function update(state: GameState, canvasWidth: number, canvasHeight: numb
         let pts = updated.points;
         if (isBullMarket) pts *= 2;
         scoreChange += pts;
+        sessionGains += pts;
         flash = 0.3;
         combo++;
+
+        // Increment specific asset counters
+        if (updated.kind === 'education') ns.educationCount++;
+        else if (updated.kind === 'family_home') ns.homeCount++;
+        else if (updated.kind === 'commercial_plaza') ns.plazaCount++;
+        else if (updated.kind === 'stocks') ns.stockCount++;
+
         newParticles.push(...createBurst(hitX, hitY, COLORS.turboLime, 12));
         newFloats.push({
           x: hitX, y: hitY,
-          text: `+$${pts.toLocaleString()}`,
-          color: COLORS.turboLime,
+          text: `+$${pts.toLocaleString()} USD`,
+          color: '#2ecc71', // Assets = Green
           life: 60, maxLife: 60,
         });
 
@@ -667,9 +797,14 @@ export function update(state: GameState, canvasWidth: number, canvasHeight: numb
         if (updated.kind === 'market_crash') {
           isInstaDeath = true;
           scoreChange += updated.points;
+          sessionLosses += Math.abs(updated.points);
+          ns.crashCount++;
         } else {
           livesChange -= 1;
           scoreChange += updated.points; // negative
+          sessionLosses += Math.abs(updated.points);
+          if (updated.kind === 'maintenance') ns.maintenanceCount++;
+          else if (updated.kind === 'interest_hike') ns.interestCount++;
         }
         combo = 0;
         isBullMarket = false;
@@ -678,8 +813,8 @@ export function update(state: GameState, canvasWidth: number, canvasHeight: numb
         newParticles.push(...createBurst(hitX, hitY, COLORS.glitchPink, 10));
         newFloats.push({
           x: hitX, y: hitY,
-          text: `$${updated.points.toLocaleString()}`,
-          color: COLORS.glitchPink,
+          text: `-$${Math.abs(updated.points).toLocaleString()} USD`,
+          color: '#e74c3c', // Liabilities = Red
           life: 60, maxLife: 60,
         });
       }
@@ -692,6 +827,8 @@ export function update(state: GameState, canvasWidth: number, canvasHeight: numb
 
   ns.objects = surviving;
   ns.score = Math.max(0, state.score + scoreChange);
+  ns.totalGains = state.totalGains + sessionGains;
+  ns.totalLosses = state.totalLosses + sessionLosses;
   ns.lives = isInstaDeath ? 0 : Math.max(0, state.lives + livesChange);
   ns.flashAlpha = Math.max(0, flash - 0.015);
   ns.screenShake = Math.max(0, shake - 0.5);

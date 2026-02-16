@@ -22,7 +22,7 @@ const SettingsButton = () => {
     };
 
     return (
-        <div className="fixed top-4 right-4 z-50 pointer-events-auto">
+        <div className="fixed top-4 right-4 z-[150] pointer-events-auto">
             {/* Settings Dropdown (Mando) */}
             <DropdownMenu>
                 <DropdownMenuTrigger asChild>

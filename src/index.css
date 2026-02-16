@@ -38,7 +38,8 @@
     --cyber-sky: 195 93% 91%;
     --cyber-grid: 195 100% 50%;
     --deep-byte: 248 100% 14%;
-    --turbo-lime: 0 84% 60%; /* High-quality red */
+    --turbo-lime: 0 84% 60%;
+    /* High-quality red */
     --glitch-pink: 300 100% 50%;
     --neon-glow: 0 84% 60%;
 
@@ -89,12 +90,31 @@
 @layer base {
   * {
     @apply border-border;
+    cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32'><path d='M2,2 L2,24 L8,18 L14,30 L18,28 L12,16 L22,16 Z' fill='black' stroke='red' stroke-width='2'/></svg>"), auto !important;
   }
 
   body {
     @apply bg-background text-foreground;
     font-family: var(--font-mono);
     overflow: hidden;
+  }
+
+  /* Custom Red Scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #000;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #ff0000;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #aa0000;
   }
 }
 

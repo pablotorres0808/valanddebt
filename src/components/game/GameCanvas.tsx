@@ -32,6 +32,15 @@ const GameCanvas = () => {
     highScore: number;
     isBullMarket: boolean;
     combo: number;
+    totalGains: number;
+    totalLosses: number;
+    educationCount: number;
+    homeCount: number;
+    plazaCount: number;
+    stockCount: number;
+    maintenanceCount: number;
+    interestCount: number;
+    crashCount: number;
   }>({
     status: 'menu',
     score: 0,
@@ -41,6 +50,15 @@ const GameCanvas = () => {
     highScore: gameStateRef.current.highScore,
     isBullMarket: false,
     combo: 0,
+    totalGains: 0,
+    totalLosses: 0,
+    educationCount: 0,
+    homeCount: 0,
+    plazaCount: 0,
+    stockCount: 0,
+    maintenanceCount: 0,
+    interestCount: 0,
+    crashCount: 0,
   });
 
   // === CANVAS SIZING (Full Screen filling) ===
@@ -120,7 +138,16 @@ const GameCanvas = () => {
         prev.lives !== gs.lives ||
         prev.difficulty !== gs.difficulty ||
         prev.isBullMarket !== gs.isBullMarket ||
-        prev.combo !== gs.combo
+        prev.combo !== gs.combo ||
+        prev.totalGains !== gs.totalGains ||
+        prev.totalLosses !== gs.totalLosses ||
+        prev.educationCount !== gs.educationCount ||
+        prev.homeCount !== gs.homeCount ||
+        prev.plazaCount !== gs.plazaCount ||
+        prev.stockCount !== gs.stockCount ||
+        prev.maintenanceCount !== gs.maintenanceCount ||
+        prev.interestCount !== gs.interestCount ||
+        prev.crashCount !== gs.crashCount
       ) {
         return {
           status: gs.gameStatus,
@@ -131,6 +158,15 @@ const GameCanvas = () => {
           highScore: gs.highScore,
           isBullMarket: gs.isBullMarket,
           combo: gs.combo,
+          totalGains: gs.totalGains,
+          totalLosses: gs.totalLosses,
+          educationCount: gs.educationCount,
+          homeCount: gs.homeCount,
+          plazaCount: gs.plazaCount,
+          stockCount: gs.stockCount,
+          maintenanceCount: gs.maintenanceCount,
+          interestCount: gs.interestCount,
+          crashCount: gs.crashCount,
         };
       }
       return prev;
@@ -198,6 +234,15 @@ const GameCanvas = () => {
           <GameOverScreen
             score={uiState.score}
             highScore={uiState.highScore}
+            totalGains={uiState.totalGains}
+            totalLosses={uiState.totalLosses}
+            educationCount={uiState.educationCount}
+            homeCount={uiState.homeCount}
+            plazaCount={uiState.plazaCount}
+            stockCount={uiState.stockCount}
+            maintenanceCount={uiState.maintenanceCount}
+            interestCount={uiState.interestCount}
+            crashCount={uiState.crashCount}
             onRetry={retryGame}
           />
         )}
