@@ -10,49 +10,47 @@ import StartScreen from './StartScreen';
 import GameHUD from './GameHUD';
 import GameOverScreen from './GameOverScreen';
 
-/**
- * GameCanvas — Main game component
- * Manages the HTML5 Canvas, game loop, and input handling.
- * Maintains a 16:9 aspect ratio container.
- */
 const GameCanvas = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const gameStateRef = useRef<GameState>(createInitialState());
   const animFrameRef = useRef<number>(0);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // React state for UI overlays (synced from game state)
   const [uiState, setUiState] = useState<{
     status: GameState['gameStatus'];
     score: number;
     lives: number;
+    maxLives: number;
     difficulty: number;
     highScore: number;
+    isBullMarket: boolean;
+    combo: number;
   }>({
     status: 'menu',
     score: 0,
     lives: 3,
+    maxLives: 3,
     difficulty: 1,
     highScore: gameStateRef.current.highScore,
+    isBullMarket: false,
+    combo: 0,
   });
 
-  // === CANVAS SIZING (16:9 responsive) ===
+  // === CANVAS SIZING (16:9, fills viewport) ===
   const resizeCanvas = useCallback(() => {
     const canvas = canvasRef.current;
     const container = containerRef.current;
     if (!canvas || !container) return;
 
-    const containerWidth = container.clientWidth;
-    const containerHeight = container.clientHeight;
+    const cw = container.clientWidth;
+    const ch = container.clientHeight;
+    const ratio = 16 / 9;
+    let w = cw;
+    let h = cw / ratio;
 
-    // Fit 16:9 within container
-    const targetRatio = 16 / 9;
-    let w = containerWidth;
-    let h = containerWidth / targetRatio;
-
-    if (h > containerHeight) {
-      h = containerHeight;
-      w = containerHeight * targetRatio;
+    if (h > ch) {
+      h = ch;
+      w = ch * ratio;
     }
 
     canvas.width = w;
@@ -61,11 +59,10 @@ const GameCanvas = () => {
     canvas.style.height = `${h}px`;
   }, []);
 
-  // === INPUT HANDLING ===
+  // === INPUT ===
   const handlePointerMove = useCallback((e: React.PointerEvent) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-
     const rect = canvas.getBoundingClientRect();
     const x = (e.clientX - rect.left) / rect.width;
     gameStateRef.current.playerX = Math.max(0.05, Math.min(0.95, x));
@@ -75,34 +72,31 @@ const GameCanvas = () => {
   const gameLoop = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    const w = canvas.width;
-    const h = canvas.height;
+    gameStateRef.current = update(gameStateRef.current, canvas.width, canvas.height);
+    render(ctx, gameStateRef.current, canvas.width, canvas.height);
 
-    // Update state
-    gameStateRef.current = update(gameStateRef.current, w, h);
-
-    // Render
-    render(ctx, gameStateRef.current, w, h);
-
-    // Sync UI state (throttled — only when changed)
     const gs = gameStateRef.current;
     setUiState(prev => {
       if (
         prev.status !== gs.gameStatus ||
         prev.score !== gs.score ||
         prev.lives !== gs.lives ||
-        prev.difficulty !== gs.difficulty
+        prev.difficulty !== gs.difficulty ||
+        prev.isBullMarket !== gs.isBullMarket ||
+        prev.combo !== gs.combo
       ) {
         return {
           status: gs.gameStatus,
           score: gs.score,
           lives: gs.lives,
+          maxLives: gs.maxLives,
           difficulty: gs.difficulty,
           highScore: gs.highScore,
+          isBullMarket: gs.isBullMarket,
+          combo: gs.combo,
         };
       }
       return prev;
@@ -128,9 +122,7 @@ const GameCanvas = () => {
   useEffect(() => {
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
-
     animFrameRef.current = requestAnimationFrame(gameLoop);
-
     return () => {
       window.removeEventListener('resize', resizeCanvas);
       cancelAnimationFrame(animFrameRef.current);
@@ -140,21 +132,16 @@ const GameCanvas = () => {
   return (
     <div
       ref={containerRef}
-      className="relative w-full h-screen flex items-center justify-center bg-foreground overflow-hidden"
+      className="fixed inset-0 flex items-center justify-center bg-foreground overflow-hidden"
     >
       <div className="relative">
         <canvas
           ref={canvasRef}
           onPointerMove={handlePointerMove}
-          className={`block cursor-none ${
-            uiState.status === 'playing' && gameStateRef.current.screenShake > 0
-              ? 'animate-screen-shake'
-              : ''
-          }`}
+          className="block cursor-none"
           style={{ touchAction: 'none' }}
         />
 
-        {/* UI Overlays */}
         {uiState.status === 'menu' && (
           <StartScreen highScore={uiState.highScore} onStart={startGame} />
         )}
@@ -163,7 +150,10 @@ const GameCanvas = () => {
           <GameHUD
             score={uiState.score}
             lives={uiState.lives}
+            maxLives={uiState.maxLives}
             difficulty={uiState.difficulty}
+            isBullMarket={uiState.isBullMarket}
+            combo={uiState.combo}
           />
         )}
 

@@ -10,7 +10,7 @@ const GameOverScreen = ({ score, highScore, onRetry }: GameOverScreenProps) => {
   const isNewHighScore = score >= highScore && score > 0;
 
   return (
-    <div className="absolute inset-0 flex flex-col items-center justify-center z-10 bg-foreground/60">
+    <div className="absolute inset-0 flex flex-col items-center justify-center z-10 bg-foreground/70">
       {/* Market Crash Title */}
       <div className="mb-2">
         <TrendingDown className="text-glitch-pink mx-auto mb-4" size={64} />
@@ -30,7 +30,7 @@ const GameOverScreen = ({ score, highScore, onRetry }: GameOverScreenProps) => {
           Final Portfolio
         </div>
         <div className="font-display text-5xl text-primary-foreground">
-          {score.toLocaleString()}
+          ${score.toLocaleString()}
         </div>
       </div>
 
