@@ -38,26 +38,26 @@ const GameHUD = ({ score, lives, maxLives, difficulty, isBullMarket, combo }: Ga
             }}
           />
         </div>
-        <div className="font-tech text-[9px] text-white uppercase tracking-wider">
+        <div className="font-mono text-[11px] md:text-xs text-white uppercase tracking-tighter font-bold drop-shadow-sm">
           {t('portfolioHealth')}
         </div>
       </div>
 
       {/* Score & Combo - Offset for Settings Button */}
-      <div className="arcade-border bg-foreground/80 px-6 py-2 text-right space-y-1 mr-16">
-        <div className="font-display text-3xl md:text-4xl text-turbo-lime neon-green">
+      <div className="arcade-border bg-black/90 px-6 py-3 text-right space-y-1 mr-16 border-turbo-lime/20 shadow-lg">
+        <div className="font-display text-4xl md:text-5xl text-turbo-lime neon-green leading-none">
           ${score.toLocaleString()}
         </div>
-        <div className="font-tech text-[10px] text-cyber-grid uppercase tracking-wider">
+        <div className="font-mono text-[11px] md:text-xs text-cyber-grid uppercase tracking-widest font-bold">
           {t('level')} {difficulty}
         </div>
         {combo >= 2 && (
-          <div className="font-display text-sm text-accent neon-green">
+          <div className="font-display text-base text-accent neon-green">
             {t('combo')} x{combo}
           </div>
         )}
         {isBullMarket && (
-          <div className="font-display text-sm text-turbo-lime neon-green animate-pulse">
+          <div className="font-display text-base text-turbo-lime neon-green animate-pulse">
             🐂 {t('bullMarket')} x2
           </div>
         )}

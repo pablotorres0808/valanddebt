@@ -1,6 +1,11 @@
 /**
  * Val&debt Game Engine v2
  * Strategic Portfolio Simulation with entity variety, combos, and floating text.
+ *
+ * - **Visual & Audio Polish**:
+ *   - **Premium Portfolio Skin**: Replaced the player with a high-detail, blue "open-lid" briefcase based on your reference image, featuring a skyscraper emblem and realistic shading.
+ *   - **Professional UI Icons**: Upgraded the start screen by replacing emojis with high-quality Lucide icons (Mouse, Smartphone, Home, Zap) and premium Mono Space typography.
+ *   - **Tech Ambience**: Refined the background hum into a high-tech "data stream" texture to match the portfolio theme.
  */
 import { playSound } from './audio';
 
@@ -264,121 +269,237 @@ function drawGrid(ctx: CanvasRenderingContext2D, w: number, h: number, offset: n
 }
 
 function drawPlayer(ctx: CanvasRenderingContext2D, x: number, y: number) {
-  ctx.fillStyle = COLORS.deepByte;
-  ctx.strokeStyle = COLORS.cyberGrid;
-  ctx.lineWidth = 3;
+  const w = PLAYER_WIDTH + 10; // Slightly wider for executive feel
+  const h = PLAYER_HEIGHT - 10;
+  const bx = x - w / 2;
+  const by = y - h / 2;
 
-  const bx = x - PLAYER_WIDTH / 2;
-  const by = y - PLAYER_HEIGHT / 2;
-  ctx.fillRect(bx + 8, by, PLAYER_WIDTH - 16, PLAYER_HEIGHT - 10);
-  ctx.strokeRect(bx + 8, by, PLAYER_WIDTH - 16, PLAYER_HEIGHT - 10);
+  ctx.save();
 
-  ctx.fillStyle = COLORS.cyberGrid;
-  ctx.fillRect(bx, by + 10, 12, 30);
-  ctx.fillRect(bx + PLAYER_WIDTH - 12, by + 10, 12, 30);
+  // Executive Palette
+  const leatherBlue = '#2c3e50';
+  const accentNavy = '#1a252f';
+  const silverEmblem = '#bdc3c7';
+  const paperWhite = '#ecf0f1';
+  const stitchColor = 'rgba(255, 255, 255, 0.1)';
 
-  ctx.fillStyle = COLORS.turboLime;
-  ctx.fillRect(bx + 20, by + 8, PLAYER_WIDTH - 40, 16);
+  // 1. Bottom Chassis (The base)
+  ctx.fillStyle = accentNavy;
+  ctx.beginPath();
+  ctx.roundRect(bx, by + h * 0.45, w, h * 0.55, 6);
+  ctx.fill();
 
-  const flicker = Math.random() * 8;
-  ctx.fillStyle = COLORS.turboLime;
-  ctx.fillRect(bx + 16, by + PLAYER_HEIGHT - 10, 8, 10 + flicker);
-  ctx.fillRect(bx + PLAYER_WIDTH - 24, by + PLAYER_HEIGHT - 10, 8, 10 + flicker);
+  // 2. Interior Documents (Peeking out)
+  ctx.fillStyle = paperWhite;
+  ctx.beginPath();
+  ctx.moveTo(bx + 8, by + h * 0.5);
+  ctx.lineTo(bx + w - 8, by + h * 0.5);
+  ctx.lineTo(bx + w - 12, by + h * 0.7);
+  ctx.lineTo(bx + 12, by + h * 0.7);
+  ctx.closePath();
+  ctx.fill();
 
-  ctx.fillStyle = COLORS.glitchPink;
-  ctx.fillRect(bx + 18, by + PLAYER_HEIGHT - 6, 4, 6 + flicker * 0.6);
-  ctx.fillRect(bx + PLAYER_WIDTH - 22, by + PLAYER_HEIGHT - 6, 4, 6 + flicker * 0.6);
+  // 3. Main Lid (The front flap)
+  ctx.save();
+  ctx.shadowColor = 'rgba(0,0,0,0.6)';
+  ctx.shadowBlur = 12;
+  ctx.shadowOffsetY = 6;
+
+  ctx.fillStyle = leatherBlue;
+  ctx.beginPath();
+  ctx.roundRect(bx, by + 4, w, h * 0.65, 8);
+  ctx.fill();
+  ctx.restore();
+
+  // 4. Stitched Border (Executive detail)
+  ctx.setLineDash([2, 4]);
+  ctx.strokeStyle = stitchColor;
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.roundRect(bx + 4, by + 8, w - 8, h * 0.65 - 8, 4);
+  ctx.stroke();
+  ctx.setLineDash([]); // Reset
+
+  // 5. Silver Handle
+  ctx.strokeStyle = silverEmblem;
+  ctx.lineWidth = 4;
+  ctx.lineCap = 'round';
+  ctx.beginPath();
+  ctx.moveTo(bx + w * 0.38, by + 6);
+  ctx.lineTo(bx + w * 0.38, by - 4);
+  ctx.lineTo(bx + w * 0.62, by - 4);
+  ctx.lineTo(bx + w * 0.62, by + 6);
+  ctx.stroke();
+
+  // 6. Skyscraper Emblem (High-detail silver relief)
+  const cx = bx + w / 2;
+  const cy = by + h * 0.35;
+  const sw = 18;
+  const sh = 22;
+
+  ctx.strokeStyle = silverEmblem;
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  // Modern geometric building
+  ctx.moveTo(cx - sw / 2, cy + sh / 2);
+  ctx.lineTo(cx - sw / 2, cy - sh / 6);
+  ctx.lineTo(cx, cy - sh / 2);
+  ctx.lineTo(cx + sw / 2, cy - sh / 6);
+  ctx.lineTo(cx + sw / 2, cy + sh / 2);
+  ctx.stroke();
+
+  // Internal lines for "windows"
+  ctx.lineWidth = 1;
+  for (let i = -1; i <= 1; i++) {
+    ctx.beginPath();
+    ctx.moveTo(cx + i * 4, cy - sh / 4);
+    ctx.lineTo(cx + i * 4, cy + sh / 2);
+    ctx.stroke();
+  }
+
+  // 7. Subtle Active Glow
+  const pulse = (Math.sin(Date.now() / 300) + 1) / 2;
+  ctx.shadowColor = '#ccff00';
+  ctx.shadowBlur = 10 * pulse;
+  ctx.strokeStyle = '#ccff00';
+  ctx.globalAlpha = 0.4 * pulse;
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  ctx.restore();
 }
 
 function drawFallingObject(ctx: CanvasRenderingContext2D, obj: GameObject, frameCount: number, t: (key: string) => string) {
   const cx = obj.x + obj.width / 2;
   const cy = obj.y + obj.height / 2;
+  const w = obj.width;
+  const h = obj.height;
 
   ctx.save();
   ctx.translate(cx, cy);
   ctx.rotate(obj.rotation);
 
-  // Flashing effect for market crash
   if (obj.flash && Math.floor(frameCount / 6) % 2 === 0) {
     ctx.globalAlpha = 0.5;
   }
 
   if (obj.type === 'asset') {
+    // PREMIUM ASSET: Detailed Architecture
     ctx.fillStyle = obj.color;
-    ctx.strokeStyle = COLORS.deepByte;
-    ctx.lineWidth = 3;
+    ctx.strokeStyle = '#000000';
+    ctx.lineWidth = 2;
 
-    const hw = obj.width / 2;
-    const hh = obj.height / 2;
+    const hw = w / 2;
+    const hh = h / 2;
 
-    // Building body
-    ctx.fillRect(-hw + 4, -4, obj.width - 8, hh + 4);
-    ctx.strokeRect(-hw + 4, -4, obj.width - 8, hh + 4);
-
-    // Roof
+    // 1. Base Structure
     ctx.beginPath();
-    ctx.moveTo(-hw, -4);
-    ctx.lineTo(0, -hh);
-    ctx.lineTo(hw, -4);
-    ctx.closePath();
+    if (obj.kind === 'studio_apt') {
+      ctx.roundRect(-hw + 4, -hh + 10, w - 8, h - 14, 2);
+    } else if (obj.kind === 'family_home') {
+      ctx.moveTo(-hw, hh);
+      ctx.lineTo(-hw, 0);
+      ctx.lineTo(0, -hh);
+      ctx.lineTo(hw, 0);
+      ctx.lineTo(hw, hh);
+      ctx.closePath();
+    } else { // Commercial Plaza
+      ctx.roundRect(-hw, -hh + 5, w, h - 5, 0);
+    }
     ctx.fill();
     ctx.stroke();
 
-    // Door
-    ctx.fillStyle = COLORS.deepByte;
-    ctx.fillRect(-4, 6, 8, 16);
-
-    // $ icon
-    ctx.fillStyle = COLORS.deepByte;
-    ctx.font = `bold ${Math.max(10, obj.width * 0.25)}px "Bungee", cursive`;
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText('$', 0, -hh + 10);
-
-    // Size indicator for commercial plaza
-    if (obj.kind === 'commercial_plaza') {
-      ctx.fillStyle = COLORS.deepByte;
-      ctx.fillRect(-hw + 10, 2, 6, 10);
-      ctx.fillRect(hw - 16, 2, 6, 10);
+    // 2. Windows & Details (White/Glass)
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+    if (obj.kind === 'studio_apt') {
+      for (let y = -hh + 15; y < hh - 5; y += 8) {
+        ctx.fillRect(-hw + 8, y, 6, 4);
+        ctx.fillRect(hw - 14, y, 6, 4);
+      }
+    } else if (obj.kind === 'family_home') {
+      ctx.fillRect(-hw + 8, hh - 12, 6, 6); // Window 1
+      ctx.fillRect(hw - 14, hh - 12, 6, 6); // Window 2
+      ctx.fillStyle = '#000';
+      ctx.fillRect(-2, hh - 10, 4, 10);      // Door
+    } else { // Commercial
+      for (let i = 0; i < 4; i++) {
+        for (let j = 0; j < 6; j++) {
+          ctx.fillRect(-hw + 5 + i * (w / 4), -hh + 10 + j * 8, w / 4 - 10, 4);
+        }
+      }
     }
+
   } else {
-    // Liability — spiky danger shape
+    // PREMIUM LIABILITY: High-Contrast Debt Symbols
+    const pulse = (Math.sin(Date.now() / 200) + 1) / 2;
+
     ctx.fillStyle = obj.color;
-    ctx.strokeStyle = COLORS.deepByte;
+    ctx.strokeStyle = '#000000';
     ctx.lineWidth = 3;
 
-    const spikes = obj.kind === 'market_crash' ? 12 : 8;
-    const outerR = obj.width / 2;
-    const innerR = obj.width / 3.5;
-    ctx.beginPath();
-    for (let i = 0; i < spikes * 2; i++) {
-      const r = i % 2 === 0 ? outerR : innerR;
-      const angle = (Math.PI * i) / spikes - Math.PI / 2;
-      if (i === 0) ctx.moveTo(Math.cos(angle) * r, Math.sin(angle) * r);
-      else ctx.lineTo(Math.cos(angle) * r, Math.sin(angle) * r);
-    }
-    ctx.closePath();
-    ctx.fill();
-    ctx.stroke();
+    if (obj.kind === 'market_crash') {
+      // Destructive Spiky Shape
+      const spikes = 16;
+      const outerR = w / 2;
+      const innerR = w / 3;
+      ctx.beginPath();
+      for (let i = 0; i < spikes * 2; i++) {
+        const r = i % 2 === 0 ? outerR : innerR;
+        const angle = (Math.PI * i) / spikes;
+        ctx.lineTo(Math.cos(angle) * r, Math.sin(angle) * r);
+      }
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
 
-    // Icon
-    ctx.fillStyle = COLORS.white;
-    const iconSize = Math.max(12, obj.width * 0.3);
-    ctx.font = `bold ${iconSize}px "Bungee", cursive`;
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(obj.kind === 'market_crash' ? '💀' : '!', 0, 0);
+      // CRASH symbol (X lines)
+      ctx.strokeStyle = '#FFFFFF';
+      ctx.lineWidth = 5;
+      ctx.beginPath();
+      ctx.moveTo(-w / 4, -w / 4); ctx.lineTo(w / 4, w / 4);
+      ctx.moveTo(w / 4, -w / 4); ctx.lineTo(-w / 4, w / 4);
+      ctx.stroke();
+    } else {
+      // Interest/Maintenance: Sharp Danger Warning
+      ctx.beginPath();
+      ctx.moveTo(0, -h / 2);
+      ctx.lineTo(w / 2, h / 2);
+      ctx.lineTo(-w / 2, h / 2);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+
+      // Negative bar / Warning line
+      ctx.fillStyle = '#FFFFFF';
+      if (obj.kind === 'interest_hike') {
+        ctx.fillRect(-w / 6, -h / 4, w / 3, 4);
+        ctx.fillRect(-w / 6, 2, w / 3, 4);
+      } else {
+        ctx.fillRect(-2, -h / 4, 4, h / 2);
+      }
+    }
+
+    // Danger Glow
+    ctx.shadowBlur = 15;
+    ctx.shadowColor = obj.color;
+    ctx.stroke();
   }
 
-  ctx.globalAlpha = 1;
   ctx.restore();
 
-  // Label below the object in Space Mono
+  // Label below the object in Space Mono — High Contrast
+  ctx.save();
   ctx.fillStyle = COLORS.deepByte;
-  ctx.font = `bold ${Math.max(9, Math.min(11, obj.width * 0.2))}px "Space Mono", monospace`;
+  ctx.font = `bold ${Math.max(10, Math.min(12, obj.width * 0.22))}px "Space Mono", monospace`;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'top';
-  ctx.fillText(t(obj.label), cx, obj.y + obj.height + 2);
+
+  // Text shadow for readability
+  ctx.shadowColor = 'rgba(255,255,255,0.8)';
+  ctx.shadowBlur = 2;
+
+  ctx.fillText(t(obj.label), cx, obj.y + obj.height + 4);
+  ctx.restore();
 }
 
 function drawParticles(ctx: CanvasRenderingContext2D, particles: Particle[]) {

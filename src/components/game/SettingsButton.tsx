@@ -22,19 +22,8 @@ const SettingsButton = () => {
     };
 
     return (
-        <div className="fixed top-4 right-4 z-50 pointer-events-auto flex gap-2">
-            {/* Volume Toggle */}
-            <Button
-                variant="outline"
-                size="icon"
-                className="w-12 h-12 arcade-border bg-foreground/90 text-turbo-lime hover:bg-foreground hover:text-turbo-lime border-4"
-                onClick={handleToggleMute}
-                title={muted ? t('unmute') : t('mute')}
-            >
-                {muted ? <VolumeX size={28} /> : <Volume2 size={28} />}
-            </Button>
-
-            {/* Language Dropdown */}
+        <div className="fixed top-4 right-4 z-50 pointer-events-auto">
+            {/* Settings Dropdown (Mando) */}
             <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                     <Button
@@ -45,7 +34,18 @@ const SettingsButton = () => {
                         <Gamepad2 size={28} />
                     </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="arcade-border bg-foreground/95 border-4 mt-2 p-1">
+                <DropdownMenuContent align="end" className="arcade-border bg-foreground/95 border-4 mt-2 p-1 min-w-[160px]">
+                    {/* Volume Toggle Item */}
+                    <DropdownMenuItem
+                        className="font-tech text-sm cursor-pointer text-turbo-lime flex items-center gap-2"
+                        onClick={handleToggleMute}
+                    >
+                        {muted ? <VolumeX size={18} /> : <Volume2 size={18} />}
+                        {muted ? t('unmute') : t('mute')}
+                    </DropdownMenuItem>
+
+                    <div className="h-px bg-turbo-lime/20 my-1 mx-2" />
+
                     <DropdownMenuItem
                         className={`font-tech text-sm cursor-pointer ${language === 'es' ? 'text-turbo-lime' : 'text-muted-foreground'}`}
                         onClick={() => setLanguage('es')}

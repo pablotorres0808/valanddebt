@@ -42,17 +42,17 @@ class AudioMgr {
         this.engineGain = this.ctx!.createGain();
         const filter = this.ctx!.createBiquadFilter();
 
-        // Deep, phasing rumbling frequency for engine
-        this.engineOsc.type = 'sawtooth';
-        this.engineOsc.frequency.setValueAtTime(55, this.ctx!.currentTime);
+        // Digital/Data Hum for Portfolio
+        this.engineOsc.type = 'triangle';
+        this.engineOsc.frequency.setValueAtTime(80, this.ctx!.currentTime);
 
-        this.secondaryOsc.type = 'sawtooth';
-        this.secondaryOsc.frequency.setValueAtTime(56.3, this.ctx!.currentTime); // Detuned for phasing
+        this.secondaryOsc.type = 'square';
+        this.secondaryOsc.frequency.setValueAtTime(82.4, this.ctx!.currentTime); // Digital phase
 
         filter.type = 'lowpass';
-        filter.frequency.setValueAtTime(250, this.ctx!.currentTime);
+        filter.frequency.setValueAtTime(350, this.ctx!.currentTime);
 
-        this.engineGain.gain.setValueAtTime(0.04, this.ctx!.currentTime);
+        this.engineGain.gain.setValueAtTime(0.02, this.ctx!.currentTime);
 
         this.engineOsc.connect(filter);
         this.secondaryOsc.connect(filter);
