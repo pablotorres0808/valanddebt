@@ -1,4 +1,5 @@
 import { TrendingDown, RotateCcw } from 'lucide-react';
+import { useLanguage } from '@/lib/LanguageContext';
 
 interface GameOverScreenProps {
   score: number;
@@ -7,15 +8,16 @@ interface GameOverScreenProps {
 }
 
 const GameOverScreen = ({ score, highScore, onRetry }: GameOverScreenProps) => {
+  const { t } = useLanguage();
   const isNewHighScore = score >= highScore && score > 0;
 
   return (
     <div className="absolute inset-0 flex flex-col items-center justify-center z-10 bg-foreground/70">
       {/* Market Crash Title */}
       <div className="mb-2">
-        <TrendingDown className="text-glitch-pink mx-auto mb-4" size={64} />
-        <h2 className="font-display text-5xl md:text-7xl text-glitch-pink neon-pink text-center">
-          MARKET CRASH
+        <TrendingDown className="text-turbo-lime mx-auto mb-4" size={64} />
+        <h2 className="font-display text-5xl md:text-7xl text-turbo-lime neon-text text-center">
+          {t('marketCrash')}
         </h2>
       </div>
 
@@ -23,11 +25,11 @@ const GameOverScreen = ({ score, highScore, onRetry }: GameOverScreenProps) => {
       <div className="arcade-border bg-foreground/90 px-8 py-6 my-8 text-center">
         {isNewHighScore && (
           <div className="font-display text-lg text-turbo-lime neon-green mb-2">
-            ★ NEW HIGH SCORE ★
+            {t('newHighScore')}
           </div>
         )}
         <div className="font-tech text-xs text-cyber-grid uppercase tracking-widest mb-1">
-          Final Portfolio
+          {t('finalPortfolio')}
         </div>
         <div className="font-display text-5xl text-primary-foreground">
           ${score.toLocaleString()}
@@ -38,7 +40,7 @@ const GameOverScreen = ({ score, highScore, onRetry }: GameOverScreenProps) => {
       <div className="flex flex-col sm:flex-row gap-4">
         <button onClick={onRetry} className="arcade-btn flex items-center gap-3">
           <RotateCcw size={24} />
-          RETRY
+          {t('retry')}
         </button>
       </div>
     </div>

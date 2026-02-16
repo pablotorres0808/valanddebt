@@ -1,4 +1,5 @@
 import { Trophy } from 'lucide-react';
+import { useLanguage } from '@/lib/LanguageContext';
 
 interface StartScreenProps {
   highScore: number;
@@ -6,6 +7,8 @@ interface StartScreenProps {
 }
 
 const StartScreen = ({ highScore, onStart }: StartScreenProps) => {
+  const { t } = useLanguage();
+
   return (
     <div className="absolute inset-0 flex flex-col items-center justify-center z-10">
       {/* Logo */}
@@ -14,7 +17,7 @@ const StartScreen = ({ highScore, onStart }: StartScreenProps) => {
           VAL<span className="text-turbo-lime neon-green">&</span>DEBT
         </h1>
         <p className="font-tech text-sm md:text-base text-secondary mt-2 tracking-widest uppercase">
-          Catch Assets. Dodge Debt. Build Wealth.
+          {t('tagline')}
         </p>
       </div>
 
@@ -26,7 +29,7 @@ const StartScreen = ({ highScore, onStart }: StartScreenProps) => {
             {highScore.toLocaleString()}
           </span>
           <span className="font-tech text-xs text-cyber-grid uppercase">
-            High Score
+            {t('highScore')}
           </span>
         </div>
       )}
@@ -36,13 +39,13 @@ const StartScreen = ({ highScore, onStart }: StartScreenProps) => {
         onClick={onStart}
         className="arcade-btn text-xl md:text-2xl animate-pulse-glow"
       >
-        START GAME
+        {t('startGame')}
       </button>
 
       {/* Controls info */}
       <div className="mt-8 font-tech text-xs text-muted-foreground text-center space-y-1">
-        <p>🖱️ Mouse / 📱 Touch to move</p>
-        <p>Catch 🏠 Assets • Dodge ⚡ Debt</p>
+        <p>{t('controlsMove')}</p>
+        <p>{t('controlsGoals')}</p>
       </div>
     </div>
   );

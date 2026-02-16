@@ -26,13 +26,13 @@ export interface EntityDef {
 
 const ENTITY_DEFS: EntityDef[] = [
   // GOOD ASSETS
-  { kind: 'studio_apt',       type: 'asset',     label: 'Studio Apt',       points: 100,   speed: 2.8, size: 38, spawnWeight: 40, color: '#39FF14', flash: false },
-  { kind: 'family_home',      type: 'asset',     label: 'Family Home',      points: 500,   speed: 2.0, size: 48, spawnWeight: 25, color: '#39FF14', flash: false },
-  { kind: 'commercial_plaza', type: 'asset',     label: 'Comm. Plaza',      points: 1500,  speed: 1.4, size: 62, spawnWeight: 5,  color: '#39FF14', flash: false },
+  { kind: 'studio_apt', type: 'asset', label: 'Studio Apt', points: 100, speed: 2.8, size: 38, spawnWeight: 40, color: '#39FF14', flash: false },
+  { kind: 'family_home', type: 'asset', label: 'Family Home', points: 500, speed: 2.0, size: 48, spawnWeight: 25, color: '#39FF14', flash: false },
+  { kind: 'commercial_plaza', type: 'asset', label: 'Comm. Plaza', points: 1500, speed: 1.4, size: 62, spawnWeight: 5, color: '#39FF14', flash: false },
   // BAD LIABILITIES
-  { kind: 'maintenance',      type: 'liability', label: 'Maintenance',      points: -200,  speed: 2.2, size: 42, spawnWeight: 30, color: '#FF00FF', flash: false },
-  { kind: 'interest_hike',    type: 'liability', label: 'Interest Hike',    points: -500,  speed: 3.2, size: 44, spawnWeight: 15, color: '#FF00FF', flash: false },
-  { kind: 'market_crash',     type: 'liability', label: 'Market Crash',     points: -3000, speed: 1.6, size: 72, spawnWeight: 3,  color: '#FF00FF', flash: true },
+  { kind: 'maintenance', type: 'liability', label: 'Maintenance', points: -200, speed: 2.2, size: 42, spawnWeight: 30, color: '#FF00FF', flash: false },
+  { kind: 'interest_hike', type: 'liability', label: 'Interest Hike', points: -500, speed: 3.2, size: 44, spawnWeight: 15, color: '#FF00FF', flash: false },
+  { kind: 'market_crash', type: 'liability', label: 'Market Crash', points: -3000, speed: 1.6, size: 72, spawnWeight: 3, color: '#FF00FF', flash: true },
 ];
 
 // === TYPES ===
@@ -107,7 +107,7 @@ const COLORS = {
   cyberSky: '#D0F0FD',
   cyberGrid: '#00C2FF',
   deepByte: '#0A0047',
-  turboLime: '#39FF14',
+  turboLime: '#FF3333', // Cool Red
   glitchPink: '#FF00FF',
   white: '#FFFFFF',
   gold: '#FFD700',
@@ -281,7 +281,7 @@ function drawPlayer(ctx: CanvasRenderingContext2D, x: number, y: number) {
   ctx.fillRect(bx + PLAYER_WIDTH - 22, by + PLAYER_HEIGHT - 6, 4, 6 + flicker * 0.6);
 }
 
-function drawFallingObject(ctx: CanvasRenderingContext2D, obj: GameObject, frameCount: number) {
+function drawFallingObject(ctx: CanvasRenderingContext2D, obj: GameObject, frameCount: number, t: (key: string) => string) {
   const cx = obj.x + obj.width / 2;
   const cy = obj.y + obj.height / 2;
 
@@ -369,7 +369,7 @@ function drawFallingObject(ctx: CanvasRenderingContext2D, obj: GameObject, frame
   ctx.font = `bold ${Math.max(9, Math.min(11, obj.width * 0.2))}px "Space Mono", monospace`;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'top';
-  ctx.fillText(obj.label, cx, obj.y + obj.height + 2);
+  ctx.fillText(t(obj.label), cx, obj.y + obj.height + 2);
 }
 
 function drawParticles(ctx: CanvasRenderingContext2D, particles: Particle[]) {
@@ -394,17 +394,18 @@ function drawFloatingTexts(ctx: CanvasRenderingContext2D, texts: FloatingText[])
   ctx.globalAlpha = 1;
 }
 
-function drawBullMarketBanner(ctx: CanvasRenderingContext2D, w: number, timer: number) {
+function drawBullMarketBanner(ctx: CanvasRenderingContext2D, w: number, timer: number, text: string) {
   const alpha = Math.min(1, timer / 30); // fade in/out
   ctx.globalAlpha = alpha * (0.8 + Math.sin(Date.now() / 150) * 0.2);
-  ctx.fillStyle = COLORS.gold;
+  ctx.fillStyle = COLORS.turboLime;
   ctx.font = 'bold 36px "Bungee", cursive';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.strokeStyle = COLORS.deepByte;
   ctx.lineWidth = 4;
-  ctx.strokeText('🐂 BULL MARKET x2 🐂', w / 2, 80);
-  ctx.fillText('🐂 BULL MARKET x2 🐂', w / 2, 80);
+  const bannerText = `🐂 ${text} x2 🐂`;
+  ctx.strokeText(bannerText, w / 2, 80);
+  ctx.fillText(bannerText, w / 2, 80);
   ctx.globalAlpha = 1;
 }
 
@@ -412,7 +413,7 @@ function drawBullMarketBanner(ctx: CanvasRenderingContext2D, w: number, timer: n
 let frameCount = 0;
 
 // === MAIN RENDER ===
-export function render(ctx: CanvasRenderingContext2D, state: GameState, w: number, h: number) {
+export function render(ctx: CanvasRenderingContext2D, state: GameState, w: number, h: number, t: (key: string) => string) {
   frameCount++;
   ctx.save();
 
@@ -425,7 +426,7 @@ export function render(ctx: CanvasRenderingContext2D, state: GameState, w: numbe
   drawGrid(ctx, w, h, state.gridOffset);
 
   for (const obj of state.objects) {
-    drawFallingObject(ctx, obj, frameCount);
+    drawFallingObject(ctx, obj, frameCount, t);
   }
 
   const px = state.playerX * w;
@@ -437,7 +438,7 @@ export function render(ctx: CanvasRenderingContext2D, state: GameState, w: numbe
 
   // Bull market banner
   if (state.isBullMarket) {
-    drawBullMarketBanner(ctx, w, state.comboTimer);
+    drawBullMarketBanner(ctx, w, state.comboTimer, t('bullMarket'));
   }
 
   // Flash overlay

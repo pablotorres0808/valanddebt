@@ -1,4 +1,5 @@
 import { Heart } from 'lucide-react';
+import { useLanguage } from '@/lib/LanguageContext';
 
 interface GameHUDProps {
   score: number;
@@ -10,6 +11,7 @@ interface GameHUDProps {
 }
 
 const GameHUD = ({ score, lives, maxLives, difficulty, isBullMarket, combo }: GameHUDProps) => {
+  const { t } = useLanguage();
   const healthPercent = (lives / maxLives) * 100;
 
   return (
@@ -21,7 +23,7 @@ const GameHUD = ({ score, lives, maxLives, difficulty, isBullMarket, combo }: Ga
             <Heart
               key={i}
               size={24}
-              className={i < lives ? 'text-glitch-pink' : 'text-muted-foreground/30'}
+              className={i < lives ? 'text-turbo-lime' : 'text-muted-foreground/30'}
               fill={i < lives ? 'currentColor' : 'none'}
             />
           ))}
@@ -32,12 +34,12 @@ const GameHUD = ({ score, lives, maxLives, difficulty, isBullMarket, combo }: Ga
             className="h-full transition-all duration-200"
             style={{
               width: `${healthPercent}%`,
-              backgroundColor: healthPercent > 50 ? '#39FF14' : healthPercent > 25 ? '#FFD700' : '#FF00FF',
+              backgroundColor: healthPercent > 50 ? 'hsl(var(--turbo-lime))' : healthPercent > 25 ? '#FFD700' : '#FF00FF',
             }}
           />
         </div>
         <div className="font-tech text-[9px] text-muted-foreground uppercase tracking-wider">
-          Portfolio Health
+          {t('portfolioHealth')}
         </div>
       </div>
 
@@ -47,16 +49,16 @@ const GameHUD = ({ score, lives, maxLives, difficulty, isBullMarket, combo }: Ga
           ${score.toLocaleString()}
         </div>
         <div className="font-tech text-[10px] text-cyber-grid uppercase tracking-wider">
-          LVL {difficulty}
+          {t('level')} {difficulty}
         </div>
         {combo >= 2 && (
           <div className="font-display text-sm text-accent neon-green">
-            COMBO x{combo}
+            {t('combo')} x{combo}
           </div>
         )}
         {isBullMarket && (
-          <div className="font-display text-sm text-destructive neon-pink animate-pulse">
-            🐂 BULL MARKET x2
+          <div className="font-display text-sm text-turbo-lime neon-green animate-pulse">
+            🐂 {t('bullMarket')} x2
           </div>
         )}
       </div>

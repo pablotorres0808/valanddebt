@@ -1,4 +1,5 @@
 import { useRef, useEffect, useCallback, useState } from 'react';
+import { useLanguage } from '@/lib/LanguageContext';
 import {
   GameState,
   createInitialState,
@@ -9,8 +10,10 @@ import {
 import StartScreen from './StartScreen';
 import GameHUD from './GameHUD';
 import GameOverScreen from './GameOverScreen';
+import SettingsButton from './SettingsButton';
 
 const GameCanvas = () => {
+  const { t } = useLanguage();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const gameStateRef = useRef<GameState>(createInitialState());
   const animFrameRef = useRef<number>(0);
@@ -76,7 +79,7 @@ const GameCanvas = () => {
     if (!ctx) return;
 
     gameStateRef.current = update(gameStateRef.current, canvas.width, canvas.height);
-    render(ctx, gameStateRef.current, canvas.width, canvas.height);
+    render(ctx, gameStateRef.current, canvas.width, canvas.height, t);
 
     const gs = gameStateRef.current;
     setUiState(prev => {
@@ -103,7 +106,7 @@ const GameCanvas = () => {
     });
 
     animFrameRef.current = requestAnimationFrame(gameLoop);
-  }, []);
+  }, [t]);
 
   // === START / RESTART ===
   const startGame = useCallback(() => {
@@ -134,6 +137,7 @@ const GameCanvas = () => {
       ref={containerRef}
       className="fixed inset-0 flex items-center justify-center bg-foreground overflow-hidden"
     >
+      <SettingsButton />
       <div className="relative">
         <canvas
           ref={canvasRef}

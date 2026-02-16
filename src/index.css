@@ -38,9 +38,9 @@
     --cyber-sky: 195 93% 91%;
     --cyber-grid: 195 100% 50%;
     --deep-byte: 248 100% 14%;
-    --turbo-lime: 110 100% 55%;
+    --turbo-lime: 0 84% 60%; /* High-quality red */
     --glitch-pink: 300 100% 50%;
-    --neon-glow: 195 100% 50%;
+    --neon-glow: 0 84% 60%;
 
     --font-display: 'Bungee', cursive;
     --font-mono: 'Space Mono', monospace;
@@ -136,7 +136,7 @@
   .arcade-btn {
     border: 4px solid hsl(var(--deep-byte));
     background: hsl(var(--turbo-lime));
-    color: hsl(var(--deep-byte));
+    color: hsl(0 0% 100%);
     font-family: var(--font-display);
     padding: 16px 48px;
     font-size: 1.5rem;
